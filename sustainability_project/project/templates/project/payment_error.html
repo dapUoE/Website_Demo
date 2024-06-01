@@ -1,0 +1,16 @@
+<!-- templates/payment_error.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .container {
+        margin-top: 80px; /* Ensure content is not hidden by navbar */
+    }
+</style>
+<div class="container">
+    <h1>Payment Error</h1>
+    <p>There was an error processing your payment. Please try again or use a different payment method.</p>
+    <a href="{% url 'product_list' %}" class="btn btn-primary">Return to Products</a>
+</div>
+{% endblock %}
+

@@ -19,7 +19,13 @@ urlpatterns = [
     path('privacy_policy/', views.privacy_policy, name='privacy_policy'),
     path('terms_conditions/', views.terms_conditions, name='terms_conditions'),
     path('remove_item/', views.remove_item, name='remove_item'),
-    path('gamekeeper/', views.gamekeeper, name='gamekeeper')
+    path('gamekeeper/', views.gamekeeper, name='gamekeeper'),
+    path('products/', views.product_list, name='product_list'),
+    path('product/<int:id>/', views.product_detail, name='product_detail'),
+    path('payment/', views.payment_view, name='payment'),
+    path('payment_success/', views.payment_success, name='payment_success'),
+    path('payment_error/', views.payment_error, name='payment_error'),
+    path('lauren/', views.lauren, name='lauren'),
     
 
 ]

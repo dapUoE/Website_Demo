@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .product-detail-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 80px;
+    }
+
+    .product-image-container {
+        flex: 1;
+        max-width: 500px;
+        margin: 20px;
+    }
+
+    .product-image {
+        width: 100%;
+        height: auto;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+    }
+
+    .product-info-container {
+        flex: 1;
+        max-width: 500px;
+        margin: 20px;
+    }
+
+    .product-title {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-size: 1.5em;
+        color: #28a745;
+        margin-bottom: 20px;
+    }
+
+    .product-description {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+    }
+
+    .product-size {
+        margin-bottom: 20px;
+    }
+
+    .product-size select {
+        padding: 10px;
+        font-size: 1em;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .buy-now-btn {
+        padding: 15px 30px;
+        font-size: 1.2em;
+        background-color: #007bff;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .buy-now-btn:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<div class="product-detail-container">
+    <div class="product-image-container">
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+    </div>
+    <div class="product-info-container">
+        <h1 class="product-title">{{ product.name }}</h1>
+        <p class="product-price">${{ product.price }}</p>
+        <p class="product-description">{{ product.description }}</p>
+        
+        <form id="buy-now-form" method="post" action="{% url 'payment' %}">
+            {% csrf_token %}
+            <div class="product-size">
+                <label for="size">Size:</label>
+                <select id="size" name="size">
+                    {% for size in product.available_sizes.split(',') %}
+                        <option value="{{ size }}">{{ size }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="quantity" value="1">
+            <input type="hidden" name="price" value="{{ product.price }}">
+            
+            <button type="submit" class="buy-now-btn">Buy Now</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

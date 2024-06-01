@@ -1,0 +1,62 @@
+<!-- templates/product_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .product-card {
+        margin: 15px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s;
+        width: 250px;
+    }
+
+    .product-card:hover {
+        transform: scale(1.05);
+    }
+
+    .product-image {
+        width: 100%;
+        height: auto;
+    }
+
+    .product-details {
+        padding: 15px;
+    }
+
+    .product-title {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        font-size: 1.2em;
+        color: #28a745;
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 80px;
+    }
+</style>
+
+<div class="container">
+    {% for product in products %}
+    <div class="card product-card">
+        <a href="{% url 'product_detail' product.id %}">
+            <!--<img src="{% static 'project/' %}{{ product.image_url }}" alt="{{ product.name }}" class="product-image">-->
+            <div class="product-details">
+                <h5 class="product-title">{{ product.name }}</h5>
+                <p class="product-price">${{ product.price }}</p>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <p>No products available</p>
+    {% endfor %}
+</div>
+{% endblock %}

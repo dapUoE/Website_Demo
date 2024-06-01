@@ -1,0 +1,136 @@
+<!-- templates/payment.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .container {
+        margin-top: 80px; /* Ensure content is not hidden by navbar */
+    }
+    .order-summary, .customer-info, .payment-details {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .order-summary h2, .customer-info h2, .payment-details h2 {
+        margin-bottom: 20px;
+    }
+    .StripeElement {
+        box-sizing: border-box;
+        height: 40px;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        box-shadow: 0 1px 3px 0 #e6ebf1;
+        transition: box-shadow 150ms ease;
+        margin-bottom: 20px;
+    }
+    .StripeElement--focus {
+        box-shadow: 0 1px 3px 0 #cfd7df;
+    }
+    .StripeElement--invalid {
+        border-color: #fa755a;
+    }
+    .StripeElement--webkit-autofill {
+        background-color: #fefde5 !important;
+    }
+    #card-errors {
+        color: #fa755a;
+        margin-top: 10px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .btn-primary {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 order-summary">
+            <h2>Order Summary</h2>
+            <p><strong>Product ID:</strong> {{ product_id }}</p>
+            <p><strong>Size:</strong> {{ size }}</p>
+            <p><strong>Price:</strong> ${{ price }}</p>
+            <p><strong>Quantity:</strong> {{ quantity }}</p>
+            <p><strong>Total:</strong> ${{ price }}</p>
+        </div>
+        <div class="col-md-6">
+            <div class="customer-info">
+                <h2>Customer Information</h2>
+                <form id="payment-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-element">Credit or debit card</label>
+                        <div id="card-element" class="form-control">
+                            <!-- A Stripe Element will be inserted here. -->
+                        </div>
+                        <!-- Used to display form errors. -->
+                        <div id="card-errors" role="alert"></div>
+                    </div>
+                    <input type="hidden" name="product_id" value="{{ product_id }}">
+                    <input type="hidden" name="size" value="{{ size }}">
+                    <input type="hidden" name="quantity" value="{{ quantity }}">
+                    <input type="hidden" name="price" value="{{ price }}">
+                    <button type="submit" class="btn btn-primary mt-4">Submit Payment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    var stripe = Stripe('{{ stripe_public_key }}');
+    var elements = stripe.elements();
+    var card = elements.create('card');
+    card.mount('#card-element');
+
+    card.on('change', function(event) {
+        var displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        stripe.createToken(card).then(function(result) {
+            if (result.error) {
+                var errorElement = document.getElementById('card-errors');
+                errorElement.textContent = result.error.message;
+            } else {
+                stripeTokenHandler(result.token);
+            }
+        });
+    });
+
+    function stripeTokenHandler(token) {
+        var form = document.getElementById('payment-form');
+        var hiddenInput = document.createElement('input');
+        hiddenInput.setAttribute('type', 'hidden');
+        hiddenInput.setAttribute('name', 'stripeToken');
+        hiddenInput.setAttribute('value', token.id);
+        form.appendChild(hiddenInput);
+        form.submit();
+    }
+</script>
+{% endblock %}

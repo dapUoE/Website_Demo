@@ -2,6 +2,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
+from django.utils.safestring import mark_safe
+from django.templatetags.static import static
 
 # Items in the village shop
 class VillageShop(models.Model):
@@ -55,3 +57,15 @@ class UserChallenges(models.Model):
     points = models.PositiveIntegerField(default=0)
     user_lat = models.DecimalField(max_digits=10, decimal_places=8, null=True)
     user_long = models.DecimalField(max_digits=11, decimal_places=8, null=True)
+    
+    
+
+class Product(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    available_sizes = models.CharField(max_length=255)  # Comma-separated sizes
+
+    def __str__(self):
+        return self.name
+

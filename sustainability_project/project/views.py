@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
@@ -8,6 +9,7 @@ from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import ValidationError
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
 
 from datetime import datetime
 import math
@@ -15,10 +17,101 @@ import django
 
 from . import cron
 from .forms import Signup, LoginForm, MakePost, ChangeProfilePicture
-from .models import CustomUser, Challenge, UserChallenges, DailyChallenge, Village, VillageShop
+from .models import CustomUser, Challenge, UserChallenges, DailyChallenge, Village, VillageShop, Product
 import json
 import random
 import os
+import stripe
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def create_stripe_charge(token, product_id, size, quantity, price):
+    try:
+        total_amount = int(float(price) * 100)  # Convert to cents
+        charge = stripe.Charge.create(
+            amount=total_amount,
+            currency="usd",
+            source=token,
+            description=f"Charge for product {product_id} - size: {size} - quantity: {quantity}"
+        )
+        return charge
+    except stripe.error.CardError as e:
+        return {'error': str(e), 'type': 'CardError'}
+    except stripe.error.RateLimitError as e:
+        return {'error': str(e), 'type': 'RateLimitError'}
+    except stripe.error.InvalidRequestError as e:
+        return {'error': str(e), 'type': 'InvalidRequestError'}
+    except stripe.error.AuthenticationError as e:
+        return {'error': str(e), 'type': 'AuthenticationError'}
+    except stripe.error.APIConnectionError as e:
+        return {'error': str(e), 'type': 'APIConnectionError'}
+    except stripe.error.StripeError as e:
+        return {'error': str(e), 'type': 'StripeError'}
+    except Exception as e:
+        return {'error': str(e), 'type': 'Exception'}
+
+@csrf_exempt
+def payment_view(request):
+    print("Payment view accessed")  # Debugging
+    if request.method == 'POST':
+        print("Received POST request")  # Debugging
+
+        token = request.POST.get('stripeToken')
+        product_id = request.POST.get('product_id')
+        size = request.POST.get('size')
+        quantity = request.POST.get('quantity')
+        price = request.POST.get('price')
+
+        print(f"token: {token}")  # Debugging
+        print(f"product_id: {product_id}")  # Debugging
+        print(f"size: {size}")  # Debugging
+        print(f"quantity: {quantity}")  # Debugging
+        print(f"price: {price}")  # Debugging
+
+        if not all([token, product_id, size, quantity, price]):
+            print("Missing one or more required fields")  # Debugging
+            return redirect('product_list')  # or handle the error appropriately
+
+        charge = create_stripe_charge(token, product_id, size, quantity, price)
+
+        if isinstance(charge, dict) and 'error' in charge:
+            # Log the error details
+            print(f"Error type: {charge['type']}, Error: {charge['error']}")
+            return redirect('payment_error')
+
+        if charge.status == 'succeeded':
+            return redirect('payment_success')
+        else:
+            return redirect('payment_error')
+
+    return render(request, 'product_list.html')
+    return render(request, 'product_list.html')
+
+def stripeTokenHandler(token, product_id, size, quantity, price):
+    # Perform additional processing here, e.g., save order to the database
+    # Create a charge: this will charge the user's card
+    try:
+        charge = stripe.Charge.create(
+            amount=int(float(price) * 100),  # Amount in cents
+            currency="usd",
+            source=token,
+            description=f"Charge for product {product_id} - size: {size} - quantity: {quantity}"
+        )
+        # Redirect to a success page
+        return redirect('payment_success')
+    except stripe.error.StripeError:
+        # Handle error
+        return redirect('payment_error')
+    
+    
+def lauren(request):
+    return render(request, 'lauren.html')
+
+def payment_success(request):
+    return render(request, 'payment_success.html')
+
+def payment_error(request):
+    return render(request, 'payment_error.html')
 
 
 def index(request):
@@ -39,6 +132,15 @@ def logout_view(request):
 
 def sample_profile(request):
     return render(request, 'project/sample_profile.html')
+
+def product_list(request):
+    products = Product.objects.all()
+    return render(request, 'product_list.html', {'products': products})
+
+def product_detail(request, id):
+    product = get_object_or_404(Product, id=id)
+    sizes = product.available_sizes.split(',')
+    return render(request, 'product_detail.html', {'product': product, 'sizes': sizes})
 
 # Code by Dan
 @login_required

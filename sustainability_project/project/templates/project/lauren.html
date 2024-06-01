@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pink Porsche Glory</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #ffccff, #ff99cc);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            color: #ff66b2;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            border: 5px solid #ff99cc;
+            border-radius: 25px;
+            padding: 20px;
+            box-shadow: 0 0 20px #ff66b2;
+            display: inline-block;
+        }
+        h1 {
+            font-size: 3em;
+            margin: 0;
+            padding: 0;
+        }
+        p {
+            font-size: 1.5em;
+            line-height: 1.5;
+            margin: 20px 0;
+        }
+        .glitter {
+            font-size: 2em;
+            background: linear-gradient(to right, #ff99cc, #ff66b2, #ff99cc);
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: glitter 2s linear infinite;
+        }
+        @keyframes glitter {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+        .hearts {
+            color: #ff66b2;
+        }
+        .hearts::before, .hearts::after {
+            content: "❤️";
+            padding: 0 10px;
+        }
+        img {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px #ff66b2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="glitter">The Glory of Pink Porsches</h1>
+        <p class="hearts">By a loving admirer of pink</p>
+        <img src="{% static 'project/pink_porsche.webp' %}" alt="Pink Porsche">
+        <p>
+            In rosy dreams of endless summer days,<br>
+            A Porsche in pink, a sight that holds my gaze.<br>
+            Its glossy curves, a tale of beauty told,<br>
+            A vision in pink, a wonder to behold.
+        </p>
+        <p>
+            The sun's warm kiss upon its blushing hue,<br>
+            A marvel crafted for the chosen few.<br>
+            On winding roads, it glides with graceful ease,<br>
+            A symphony of speed that aims to please.
+        </p>
+        <p>
+            Through city streets and down the open way,<br>
+            It captures hearts and makes the spirits sway.<br>
+            A masterpiece in pink, both bold and bright,<br>
+            It turns the day to magic, pure delight.
+        </p>
+        <p>
+            So here’s to pink, the Porsche in its prime,<br>
+            A testament to art, surpassing time.
+        </p>
+    </div>
+</body>
+</html>

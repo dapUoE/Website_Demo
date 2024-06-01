@@ -138,3 +138,6 @@ MEDIA_URL = 'media/'
 CRONJOBS = [
     ('0 9 * * *', 'project.cron.get_new_daily_challenge' , '>> ' + os.path.join(BASE_DIR,'cron_log.log'+' 2>&1 '))
 ]
+
+STRIPE_PUBLIC_KEY = 'pk_test_51P2ML5I9PUrCNIfDirMZEvno9xPXcplIyQ99QsfEYvuvKpPUn2eebi926ixers3UfIZNU76pnFoAgXl4YHHLDFH800PPtV8YmZ'
+STRIPE_SECRET_KEY = 'sk_test_51P2ML5I9PUrCNIfDVhXuMRHX9URMneELKTYIp2l4dcNHpGxuT8RwSDQSLnprOKbICs60eB0XlThEw7n2kknvBmoG00qm7d66GN'
